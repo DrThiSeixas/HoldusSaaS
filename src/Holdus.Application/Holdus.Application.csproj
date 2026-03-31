@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Holdus.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- JWT (AuthService precisa gerar tokens) -->
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.*" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.*" />
+
+    <!-- EF Core (AuthService faz queries) -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.*" />
+
+    <!-- Configuration (IConfiguration) -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Holdus.Domain\Holdus.Domain.csproj" />
+    <ProjectReference Include="..\Holdus.Infrastructure\Holdus.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

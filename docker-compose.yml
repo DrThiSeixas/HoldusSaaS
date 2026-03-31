@@ -1,0 +1,106 @@
+version: "3.9"
+
+services:
+  # ═══════════════════════════════════════════════════════════
+  # PostgreSQL 16 — Banco principal multi-tenant
+  # ═══════════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: holdus-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: holdus
+      POSTGRES_USER: holdus
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-HD_S3cur3_2026!}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=pt_BR.UTF-8 --lc-ctype=pt_BR.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U holdus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════════
+  # Redis 7 — Cache, sessões, rate limiting
+  # ═══════════════════════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: holdus-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD:-HD_R3dis_2026!} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-HD_R3dis_2026!}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════════
+  # MinIO — Object Storage (documentos, PDFs, anexos)
+  # Compatível com API S3
+  # ═══════════════════════════════════════════════════════════
+  minio:
+    image: minio/minio:latest
+    container_name: holdus-storage
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-holdus}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-HD_Min10_2026!}
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ═══════════════════════════════════════════════════════════
+  # API — ASP.NET Core 9
+  # ═══════════════════════════════════════════════════════════
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: holdus-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=holdus;Username=holdus;Password=${DB_PASSWORD:-HD_S3cur3_2026!};Include Error Detail=true"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD:-HD_R3dis_2026!}"
+      Storage__Endpoint: "minio:9000"
+      Storage__AccessKey: ${MINIO_USER:-holdus}
+      Storage__SecretKey: ${MINIO_PASSWORD:-HD_Min10_2026!}
+      Storage__UseSSL: "false"
+      Jwt__Secret: ${JWT_SECRET:-HD_Jwt_S3cr3t_K3y_2026_M1n1mum_32_Ch4rs!!}
+      Jwt__Issuer: "holdus-api"
+      Jwt__Audience: "holdus-web"
+      Jwt__ExpirationMinutes: "480"
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local
+  miniodata:
+    driver: local

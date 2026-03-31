@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+.git/
+*.md
+docker/
+scripts/
+docs/

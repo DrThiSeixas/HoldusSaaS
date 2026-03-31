@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Holdus.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Permite usar pacotes ASP.NET Core em class library -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- EF Core + PostgreSQL -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.*" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.*" />
+
+    <!-- Identity (provided by FrameworkReference) -->
+    <!-- <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" /> -->
+
+    <!-- Data Protection (provided by FrameworkReference) -->
+    <!-- <PackageReference Include="Microsoft.AspNetCore.DataProtection" /> -->
+
+    <!-- Redis -->
+    <PackageReference Include="StackExchange.Redis" Version="2.8.*" />
+
+    <!-- MinIO S3 -->
+    <PackageReference Include="Minio" Version="6.*" />
+
+    <!-- Hangfire (background jobs) -->
+    <PackageReference Include="Hangfire.Core" Version="1.8.*" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.20.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Holdus.Domain\Holdus.Domain.csproj" />
+  </ItemGroup>
+</Project>

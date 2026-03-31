@@ -89,7 +89,8 @@ public sealed class MatrizDecisaoAcordoEngine
         if (!p1)
             r.Bloqueios.Add(new DecisaoBloqueio
             {
-                Codigo = "MD_01", PerguntaNumero = 1,
+                Codigo = "MD_01",
+                PerguntaNumero = 1,
                 Mensagem = "Ninguém ingressa na governança sem adesão expressa. Adicione ao menos dois signatários."
             });
         r.ClausulasAtivadas.Add(new ClausulaAtivada { Modulo = "DQ.01", Descricao = "Identificação, qualidade e adesão obrigatória", Obrigatoria = true });
@@ -140,7 +141,8 @@ public sealed class MatrizDecisaoAcordoEngine
         if (profile.HasUsufruct && !dp.EstaDefinido)
             r.Bloqueios.Add(new DecisaoBloqueio
             {
-                Codigo = "MD_04", PerguntaNumero = 4,
+                Codigo = "MD_04",
+                PerguntaNumero = 4,
                 Mensagem = "BLOQUEIO: Há usufruto mas o regime de voto não foi definido. O DREI exige disciplina clara.",
                 FundamentoLegal = "DREI — eficácia perante terceiros de instrumento parassocial"
             });
@@ -164,13 +166,15 @@ public sealed class MatrizDecisaoAcordoEngine
         if (profile.HasUsufruct && de.ModoEconomico == ModoEconomicoUsufruto.NaoDefinido)
             r.Bloqueios.Add(new DecisaoBloqueio
             {
-                Codigo = "MD_05", PerguntaNumero = 5,
+                Codigo = "MD_05",
+                PerguntaNumero = 5,
                 Mensagem = "BLOQUEIO: Há usufruto mas os direitos econômicos não foram definidos."
             });
         if (de.ExcluiQuotistaDeResultados)
             r.Bloqueios.Add(new DecisaoBloqueio
             {
-                Codigo = "MD_05B", PerguntaNumero = 5,
+                Codigo = "MD_05B",
+                PerguntaNumero = 5,
                 Mensagem = "BLOQUEIO: Não é permitida exclusão de quotista da repartição de lucros na limitada.",
                 FundamentoLegal = "DREI + regime legal da Ltda"
             });
@@ -261,15 +265,16 @@ public sealed class MatrizDecisaoAcordoEngine
             Numero = 13,
             Pergunta = "O sistema admite saída voluntária?",
             Resposta = saida.PermiteSaidaVoluntaria
-                ? $"Sim — {saida.Valuation}, {saida.ParcelasPagamento}x, notificação {saida.PrazoNotificacaoDias}d"
+                ? $"Sim — {saida.Valuation?.FormulaContratual ?? "Padrão"}, {saida.ParcelasPagamento}x, notificação {saida.PrazoNotificacaoDias}d"
                 : "Não — saída vedada",
             Respondida = true
         });
-        if (saida.PermiteSaidaVoluntaria && saida.Valuation == MetodoValuation.FormulaContratual)
+        if (saida.PermiteSaidaVoluntaria && !string.IsNullOrEmpty(saida.Valuation?.FormulaContratual))
         {
             r.Alertas.Add(new DecisaoAlerta
             {
-                Codigo = "MD_13", PerguntaNumero = 13,
+                Codigo = "MD_13",
+                PerguntaNumero = 13,
                 Mensagem = "Fórmula contratual selecionada — definir critério objetivo de valuation."
             });
         }
@@ -288,7 +293,8 @@ public sealed class MatrizDecisaoAcordoEngine
         if (!sancoes.ValorMulta.HasValue || sancoes.ValorMulta <= 0)
             r.Alertas.Add(new DecisaoAlerta
             {
-                Codigo = "MD_14", PerguntaNumero = 14,
+                Codigo = "MD_14",
+                PerguntaNumero = 14,
                 Mensagem = "Sanção sem multa definida. Cláusula pode ficar decorativa."
             });
 
@@ -312,7 +318,8 @@ public sealed class MatrizDecisaoAcordoEngine
         if (profile.HasUsufruct && arq.Modo == ModoArquivamento.NaoArquivar)
             r.Alertas.Add(new DecisaoAlerta
             {
-                Codigo = "MD_15", PerguntaNumero = 15,
+                Codigo = "MD_15",
+                PerguntaNumero = 15,
                 Mensagem = "ALERTA FORTE: Acordo regula usufruto mas não será arquivado. O DREI exige arquivamento para eficácia perante terceiros quando usufruto é regulado em instrumento parassocial."
             });
 
@@ -336,7 +343,8 @@ public sealed class MatrizDecisaoAcordoEngine
         if (cont.Modo == ModoControversia.Arbitragem && string.IsNullOrWhiteSpace(cont.CamaraArbitral))
             r.Bloqueios.Add(new DecisaoBloqueio
             {
-                Codigo = "MD_16", PerguntaNumero = 16,
+                Codigo = "MD_16",
+                PerguntaNumero = 16,
                 Mensagem = "BLOQUEIO: Arbitragem selecionada sem câmara arbitral definida."
             });
         r.ClausulasAtivadas.Add(new ClausulaAtivada { Modulo = "DQ.12", Descricao = "Solução de controvérsias", Obrigatoria = true });
